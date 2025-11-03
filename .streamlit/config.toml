@@ -1,22 +1,51 @@
 [theme]
-base = "dark"
+base = "light"
 
 # General color setup
-#textColor = "#314158"
-#primaryColor = "#615fff"
-#backgroundColor = "#1d293d"
-#secondaryBackgroundColor = "#0f172b"
+textColor = "#1C1C25"
+primaryColor = "#E10600"
+#secondaryBackgroundColor = "#1A1A2E"
 
 # Widgets
 showWidgetBorder = true
-borderColor = "#314158"
+borderColor = "#303037"
 
-# Base text
-font = "'Titillium Web':https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700&display=swap"
+# Base text - Use Titillium Web
+font = "Titillium Web, sans-serif"
 baseFontWeight = 400
 baseFontSize = 14
 
 # Heading text
-headingFont = "Titillium Web"
-headingFontWeights = [700, 600, 400, 400, 300, 300]
+headingFont = "Titillium Web, sans-serif"
+headingFontWeights = [900, 700, 600, 400, 400, 300]
 headingFontSizes = ["2.5rem", "1.5rem", "1rem"]
+
+# Font Faces - Load Titillium Web from Google Fonts
+[[theme.fontFaces]]
+family = "Titillium Web"
+url = "https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700;900&display=swap"
+
+[[theme.fontFaces]]
+family = "Titillium Web"
+url = "https://fonts.gstatic.com/s/titilliumweb/v17/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2"
+weight = 300
+
+[[theme.fontFaces]]
+family = "Titillium Web"
+url = "https://fonts.gstatic.com/s/titilliumweb/v17/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2"
+weight = 400
+
+[[theme.fontFaces]]
+family = "Titillium Web"
+url = "https://fonts.gstatic.com/s/titilliumweb/v17/NaPDcZTIAOhVxoMyOr9n_E7ffGjEGIVzY4SY.woff2"
+weight = 600
+
+[[theme.fontFaces]]
+family = "Titillium Web"
+url = "https://fonts.gstatic.com/s/titilliumweb/v17/NaPDcZTIAOhVxoMyOr9n_E7ffBzCGIVzY4SY.woff2"
+weight = 700
+
+[[theme.fontFaces]]
+family = "Titillium Web"
+url = "https://fonts.gstatic.com/s/titilliumweb/v17/NaPDcZTIAOhVxoMyOr9n_E7ffHjBGIVzY4SY.woff2"
+weight = 900

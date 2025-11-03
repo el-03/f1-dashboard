@@ -29,6 +29,7 @@ st.markdown("""
     </h2>
     """, unsafe_allow_html=True)
 cols_2 = st.columns([1, 4, 1])
+st.markdown("---")
 st.markdown("""
     <h2 style='text-align:center; margin: 0;'>
         Teams' Championship Progression
@@ -70,11 +71,6 @@ col_3_3 = cols_3[2].container(
 
 current_year = datetime.now().year
 year_options = sorted(list(range(2014, current_year + 1)), reverse=True)
-
-# Callback to update query param when input changes
-# def update_query_param():
-#     if st.session_state.selected_year:
-#         st.query_params[""]
 
 with col_1_1:
     season_ticker = st.selectbox(
@@ -289,6 +285,16 @@ def get_ovt_d(selected_year, _conn) -> pd.DataFrame:
 # Load Data: Driver - Overtake
 ovt_d_df = get_ovt_d(season_ticker, connection)
 
+
+# Loader: State - Round Number
+def get_round_num(selected_year, _conn) -> int:
+    return query_data(f"""
+    SELECT MAX(r.number) FROM formula_one.race_result rr
+    LEFT JOIN formula_one.round r ON 
+      rr.round_id = r.id
+    WHERE EXTRACT(YEAR FROM r.date) = {selected_year};""", _conn)['max'][0]
+
+
 pills_d_map = {
     "Top 3": 3,
     "Top 5": 5,
@@ -302,8 +308,19 @@ pills_t_map = {
     "All": 20,
 }
 
+# --- State Initialization ---
+if 'round_slider_max' not in st.session_state:
+    st.session_state.round_slider_max = get_round_num(season_ticker, connection)
+
+# Initialize driver and team sliders only if not already set
+for key in ['round_slider_d', 'round_slider_t']:
+    if key not in st.session_state:
+        st.session_state[key] = st.session_state.round_slider_max
+
 with col_2_1:
     selection_drivers = st.pills("Filter", pills_d_map, default={"Top 3": 3}, key="drivers_filter")
+
+    st.markdown("---")
 
     cols_1 = st.columns(2)
 
@@ -365,21 +382,30 @@ drivers_progression_df = get_progression_d(season_ticker, connection)
 
 with col_2_2:
     if not drivers_progression_df.empty:
-        # Get top N drivers by max points
+        # Use st.session_state to get current slider value (default if not set)
+        round_slider_d = st.session_state.get('round_slider_d', st.session_state.round_slider_max)
+
+        # Filter data based on the stored slider value
+        filtered_rounds = drivers_progression_df[
+            drivers_progression_df['round_number'] <= round_slider_d
+        ]
+
         top_drivers = (
-            drivers_progression_df.groupby('driver')['points']
+            filtered_rounds.groupby('driver')['points']
             .max()
-            .nlargest(pills_d_map[selection_drivers])
+            .nlargest(pills_t_map[selection_drivers])
             .index
             .tolist()
         )
-        filtered_data = drivers_progression_df[drivers_progression_df['driver'].isin(top_drivers)]
 
+        filtered_data = filtered_rounds[filtered_rounds['driver'].isin(top_drivers)]
+
+        # Build and show the chart
         chart = (
             alt.Chart(filtered_data)
             .mark_line(point=True)
             .encode(
-                x=alt.X('round_number:O', title='Round'),  # ordinal if rounds are integers
+                x=alt.X('round_number:O', title='Round'),
                 y=alt.Y('points:Q', title='Points'),
                 color=alt.Color('driver:N', title='Driver'),
                 tooltip=[
@@ -389,8 +415,17 @@ with col_2_2:
             )
             .properties(height=550)
         )
-
         st.altair_chart(chart, use_container_width=True)
+
+        # Render the slider below the chart
+        st.slider(
+            "Round",
+            1,
+            st.session_state.round_slider_max,
+            round_slider_d,
+            key="round_slider_d"
+        )
+
 
 with col_2_3:
     st.markdown("Drivers' Standings")
@@ -400,6 +435,7 @@ with col_2_3:
 
 with col_3_1:
     selection_teams = st.pills("Filter", pills_t_map, default={"Top 3": 3}, key="teams_filter")
+    st.markdown("---")
     st.markdown("""## Most Wins & Poles""")
     cols = st.columns(2)
 
@@ -446,19 +482,27 @@ def get_progression_t(selected_year, _conn) -> pd.DataFrame:
 """, _conn)
 
 
-teams_progression = get_progression_t(season_ticker, connection)
+teams_progression_df = get_progression_t(season_ticker, connection)
 
 with col_3_2:
-    if not teams_progression.empty:
+    if not teams_progression_df.empty:
+        # Use st.session_state to get current slider value (default if not set)
+        round_slider_t = st.session_state.get('round_slider_t', st.session_state.round_slider_max)
+
+        # Filter data based on the stored slider value
+        filtered_rounds = teams_progression_df[
+            teams_progression_df['round_number'] <= round_slider_t
+            ]
+
         # Get top N drivers by max points
-        top_drivers = (
-            teams_progression.groupby('team')['points']
+        top_teams = (
+            filtered_rounds.groupby('team')['points']
             .max()
             .nlargest(pills_t_map[selection_teams])
             .index
             .tolist()
         )
-        filtered_data = teams_progression[teams_progression['team'].isin(top_drivers)]
+        filtered_data = filtered_rounds[filtered_rounds['team'].isin(top_teams)]
 
         chart = (
             alt.Chart(filtered_data)
@@ -476,6 +520,15 @@ with col_3_2:
         )
 
         st.altair_chart(chart, use_container_width=True)
+
+        # Render the slider below the chart
+        st.slider(
+            "Round",
+            1,
+            st.session_state.round_slider_max,
+            round_slider_t,
+            key="round_slider_t"
+        )
 
 with col_3_3:
     st.markdown("Teams' Standings")
