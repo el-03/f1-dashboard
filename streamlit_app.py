@@ -22,20 +22,20 @@ F1 data analysis, started from the Hybrid V6 Turbo Era (2014) onwards.
 
 ""
 
-cols_1 = st.columns([1, 5])
-st.markdown("""
+cols_1 = st.columns([2, 4, 2])
+cols_1[1].markdown("""
     <h2 style='text-align:center; margin: 0;'>
         Drivers' Championship Progression
     </h2>
     """, unsafe_allow_html=True)
-cols_2 = st.columns([1, 4, 1])
+cols_2 = st.columns([2, 4, 2])
 st.markdown("---")
 st.markdown("""
     <h2 style='text-align:center; margin: 0;'>
         Teams' Championship Progression
     </h2>
     """, unsafe_allow_html=True)
-cols_3 = st.columns([1, 4, 1])
+cols_3 = st.columns([2, 4, 2])
 
 col_1_1 = cols_1[0].container(
     height="stretch"
