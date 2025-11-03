@@ -50,7 +50,7 @@ col_2_1 = cols_2[0].container(
 )
 
 col_2_2 = cols_2[1].container(
-    height="stretch"
+    border=True, height="stretch"
 )
 
 col_2_3 = cols_2[2].container(
@@ -62,7 +62,7 @@ col_3_1 = cols_3[0].container(
 )
 
 col_3_2 = cols_3[1].container(
-    height="stretch"
+    border=True, height="stretch"
 )
 
 col_3_3 = cols_3[2].container(
@@ -344,8 +344,8 @@ with col_2_1:
     most_gains_d = ovt_d_df.iloc[0]
     most_losses_d = ovt_d_df.iloc[-1]
 
-    st.markdown("""### Place Gains & Losses""")
     cols_2 = st.columns(2)
+    cols_2[0].markdown("""### Places Gained""")
     cols_2[0].metric(
         most_gains_d["driver"],
         most_gains_d["abbreviation"],
@@ -353,6 +353,7 @@ with col_2_1:
         width="content"
     )
 
+    cols_2[1].markdown("""### Places Lost""")
     cols_2[1].metric(
         most_losses_d["driver"],
         most_losses_d["abbreviation"],
@@ -418,7 +419,7 @@ with col_2_2:
 
         # Render the slider below the chart
         st.slider(
-            "Round",
+            "",
             1,
             st.session_state.round_slider_max,
             st.session_state.round_slider_max,
@@ -435,12 +436,12 @@ with col_2_3:
 with col_3_1:
     selection_teams = st.pills("Filter", pills_t_map, default={"Top 3": 3}, key="teams_filter")
     st.markdown("---")
-    st.markdown("""### Most Wins & Poles""")
     cols = st.columns(2)
 
     most_win_t = most_win_t_df.iloc[0]
+    cols[0].markdown("""### Most Wins""")
     cols[0].metric(
-        "Race",
+        "In a season",
         most_win_t["team"],
         delta=f"{most_win_t["total_win"]} Win(s)",
         width="content"
@@ -448,8 +449,9 @@ with col_3_1:
 
     most_poles_t = most_poles_t_df.iloc[0]
 
+    cols[1].markdown("""### Most Poles""")
     cols[1].metric(
-        "Qualifying",
+        "In a season",
         most_poles_t["team"],
         delta=f"{most_poles_t["total_pole"]} Pole(s)",
         width="content"
@@ -458,7 +460,7 @@ with col_3_1:
     st.markdown("""### Most DNFs""")
     most_dnfs_t = most_dnfs_t_df.iloc[0]
     st.metric(
-        "Total",
+        "In a season",
         most_dnfs_t["team"],
         delta=f"{-1 * most_dnfs_t["retired_count"]} DNF(s)",
         width="content"
@@ -522,7 +524,7 @@ with col_3_2:
 
         # Render the slider below the chart
         st.slider(
-            "Round",
+            "",
             1,
             st.session_state.round_slider_max,
             st.session_state.round_slider_max,
