@@ -68,19 +68,6 @@ col_3_2 = cols_3[1].container(
 col_3_3 = cols_3[2].container(
     height="stretch"
 )
-
-current_year = datetime.now().year
-year_options = sorted(list(range(2014, current_year + 1)), reverse=True)
-
-with col_1_1:
-    season_ticker = st.selectbox(
-        "Season",
-        options=year_options,
-        index=year_options.index(st.session_state.get("s_t_input", current_year))
-        if "s_t_input" in st.session_state else 0,
-    )
-
-
 # Database connection
 @st.cache_resource
 def get_connection():
@@ -113,6 +100,28 @@ def query_data(query, conn):
         return pd.read_sql(query, conn)
 
 
+current_year = datetime.now().year
+year_options = sorted(list(range(2014, current_year + 1)), reverse=True)
+
+# Loader: State - Round Number
+@st.cache_data(ttl=600)
+def get_round_num(selected_year, _conn) -> int:
+    return query_data(f"""
+    SELECT MAX(r.number) FROM formula_one.race_result rr
+    LEFT JOIN formula_one.round r ON 
+      rr.round_id = r.id
+    WHERE EXTRACT(YEAR FROM r.date) = {selected_year};""", _conn)['max'][0]
+
+
+with col_1_1:
+    season_ticker = st.selectbox(
+        "Season",
+        options=year_options,
+        index=year_options.index(st.session_state.get("s_t_input", current_year))
+        if "s_t_input" in st.session_state else 0,
+    )
+    st.session_state.round_slider_max = get_round_num(season_ticker, connection)
+
 # Loader: Drivers' Standing
 @st.cache_data(ttl=600)
 def get_drivers_standings(selected_year, _conn) -> pd.DataFrame:
@@ -130,7 +139,7 @@ def get_drivers_standings(selected_year, _conn) -> pd.DataFrame:
 
 
 # Loader: Teams' Standings
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def get_teams_standings(selected_year, _conn) -> pd.DataFrame:
     return query_data(f"""
     SELECT
@@ -158,7 +167,7 @@ teams_standings_df.set_index("POS.", inplace=True)
 
 
 # Loader: Most Win
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def get_most_win_d(selected_year, _conn) -> pd.DataFrame:
     return query_data(f"""
         SELECT 
@@ -175,7 +184,7 @@ def get_most_win_d(selected_year, _conn) -> pd.DataFrame:
     """, _conn)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def get_most_win_t(selected_year, _conn) -> pd.DataFrame:
     return query_data(f"""
     SELECT 
@@ -197,7 +206,7 @@ most_win_t_df = get_most_win_t(season_ticker, connection)
 
 
 # Loader: Most Pole
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def get_most_poles_d(selected_year, _conn) -> pd.DataFrame:
     return query_data(f"""
         SELECT
@@ -215,7 +224,7 @@ def get_most_poles_d(selected_year, _conn) -> pd.DataFrame:
     """, _conn)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def get_most_poles_t(selected_year, _conn) -> pd.DataFrame:
     return query_data(f"""
         SELECT
@@ -261,7 +270,7 @@ most_dnfs_t_df = get_most_dnfs_t(season_ticker, connection)
 
 
 # Loader: Driver - Overtake
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def get_ovt_d(selected_year, _conn) -> pd.DataFrame:
     return query_data(f"""
     WITH cte_1 AS (
@@ -284,16 +293,6 @@ def get_ovt_d(selected_year, _conn) -> pd.DataFrame:
 
 # Load Data: Driver - Overtake
 ovt_d_df = get_ovt_d(season_ticker, connection)
-
-
-# Loader: State - Round Number
-def get_round_num(selected_year, _conn) -> int:
-    return query_data(f"""
-    SELECT MAX(r.number) FROM formula_one.race_result rr
-    LEFT JOIN formula_one.round r ON 
-      rr.round_id = r.id
-    WHERE EXTRACT(YEAR FROM r.date) = {selected_year};""", _conn)['max'][0]
-
 
 pills_d_map = {
     "Top 3": 3,
@@ -422,7 +421,7 @@ with col_2_2:
             "Round",
             1,
             st.session_state.round_slider_max,
-            round_slider_d,
+            st.session_state.round_slider_max,
             key="round_slider_d"
         )
 
@@ -526,7 +525,7 @@ with col_3_2:
             "Round",
             1,
             st.session_state.round_slider_max,
-            round_slider_t,
+            st.session_state.round_slider_max,
             key="round_slider_t"
         )
 
