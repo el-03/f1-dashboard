@@ -12,13 +12,13 @@ borderColor = "#303037"
 
 # Base text - Use Titillium Web
 font = "Titillium Web, sans-serif"
-baseFontWeight = 400
+baseFontWeight = 350
 baseFontSize = 14
 
 # Heading text
 headingFont = "Titillium Web, sans-serif"
-headingFontWeights = [900, 700, 600, 400, 400, 300]
-headingFontSizes = ["2.5rem", "1.5rem", "1rem"]
+headingFontWeights = [750, 650, 570, 380, 380, 280]
+headingFontSizes = ["3rem", "1.8rem", "1.5rem", "1.3"]
 
 # Font Faces - Load Titillium Web from Google Fonts
 [[theme.fontFaces]]

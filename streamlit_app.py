@@ -325,7 +325,7 @@ with col_2_1:
     cols_1 = st.columns(2)
 
     most_win_d = most_win_d_df.iloc[0]
-    cols_1[0].markdown("""## Most Wins""")
+    cols_1[0].markdown("""### Most Wins""")
     cols_1[0].metric(
         most_win_d["driver"],
         most_win_d["abbreviation"],
@@ -334,7 +334,7 @@ with col_2_1:
     )
 
     most_poles_d = most_poles_d_df.iloc[0]
-    cols_1[1].markdown("""## Most Poles""")
+    cols_1[1].markdown("""### Most Poles""")
     cols_1[1].metric(
         most_poles_d["driver"],
         most_poles_d["abbreviation"],
@@ -345,7 +345,7 @@ with col_2_1:
     most_gains_d = ovt_d_df.iloc[0]
     most_losses_d = ovt_d_df.iloc[-1]
 
-    st.markdown("""## Place Gains & Losses""")
+    st.markdown("""### Place Gains & Losses""")
     cols_2 = st.columns(2)
     cols_2[0].metric(
         most_gains_d["driver"],
@@ -436,7 +436,7 @@ with col_2_3:
 with col_3_1:
     selection_teams = st.pills("Filter", pills_t_map, default={"Top 3": 3}, key="teams_filter")
     st.markdown("---")
-    st.markdown("""## Most Wins & Poles""")
+    st.markdown("""### Most Wins & Poles""")
     cols = st.columns(2)
 
     most_win_t = most_win_t_df.iloc[0]
@@ -456,7 +456,7 @@ with col_3_1:
         width="content"
     )
 
-    st.markdown("""## Most DNFs""")
+    st.markdown("""### Most DNFs""")
     most_dnfs_t = most_dnfs_t_df.iloc[0]
     st.metric(
         "Total",
