@@ -393,7 +393,7 @@ with col_2_2:
         top_drivers = (
             filtered_rounds.groupby('driver')['points']
             .max()
-            .nlargest(pills_t_map[selection_drivers])
+            .nlargest(pills_d_map[selection_drivers])
             .index
             .tolist()
         )
