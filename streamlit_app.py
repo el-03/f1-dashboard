@@ -6,6 +6,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
+from schedule_board import schedule_board
+
 load_dotenv()
 schema = os.getenv("SCHEMA")
 
@@ -16,11 +18,11 @@ st.set_page_config(
 
 """
 # :material/grain: F1 Dashboard
-
-F1 data analysis, started from the Hybrid V6 Turbo Era (2014) onwards.
 """
 
 ""
+
+schedule_board()
 
 cols_1 = st.columns([2, 4, 2])
 cols_1[1].markdown("""
@@ -119,8 +121,18 @@ with col_1_1:
         options=year_options,
         index=year_options.index(st.session_state.get("s_t_input", current_year))
         if "s_t_input" in st.session_state else 0,
+        key="s_t_input",
     )
+
+    if "prev_s_t_input" not in st.session_state:
+        st.session_state.prev_s_t_input = season_ticker
+
     st.session_state.round_slider_max = get_round_num(season_ticker, connection)
+
+    if st.session_state.prev_s_t_input != season_ticker:
+        st.session_state.prev_s_t_input = season_ticker
+        st.session_state.round_slider_d = st.session_state.round_slider_max
+        st.session_state.round_slider_t = st.session_state.round_slider_max
 
 # Loader: Drivers' Standing
 @st.cache_data(ttl=600)
@@ -306,15 +318,6 @@ pills_t_map = {
     "Top 5": 5,
     "All": 20,
 }
-
-# --- State Initialization ---
-if 'round_slider_max' not in st.session_state:
-    st.session_state.round_slider_max = get_round_num(season_ticker, connection)
-
-# Initialize driver and team sliders only if not already set
-for key in ['round_slider_d', 'round_slider_t']:
-    if key not in st.session_state:
-        st.session_state[key] = st.session_state.round_slider_max
 
 with col_2_1:
     selection_drivers = st.pills("Filter", pills_d_map, default={"Top 3": 3}, key="drivers_filter")
