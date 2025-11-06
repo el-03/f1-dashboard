@@ -89,7 +89,7 @@ def schedule_board():
 
     cols = st.columns([3, 1])
     col_1 = cols[0].container(border=False, height="stretch")
-    col_2 = cols[1].container(border=True, height="stretch")
+    col_2 = cols[1].container(border=False, height="stretch")
 
     with col_1:
         st.markdown(f"""
@@ -132,8 +132,9 @@ def schedule_board():
                     </h1>
                     """, unsafe_allow_html=True)
     with col_2:
-        st.markdown(f"""## F1 {year_now} Calendar""")
-        st.markdown(f"""### Next Rounds""")
+        st.markdown(f"""### """)
+        st.markdown(f"""### F1 {year_now} Calendar""")
+        st.write("Next Rounds")
         st.dataframe(remaining_season_rounds_df, hide_index=True)
 
         with st.expander("Previous Rounds"):
