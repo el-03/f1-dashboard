@@ -6,8 +6,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
-from schedule_board import schedule_board
-
 load_dotenv()
 schema = os.getenv("SCHEMA")
 
@@ -21,8 +19,6 @@ st.set_page_config(
 """
 
 ""
-
-schedule_board()
 
 cols_1 = st.columns([2, 4, 2])
 cols_1[1].markdown("""
