@@ -1,9 +1,5 @@
-import streamlit as st
-import psycopg2
 import altair as alt
 from datetime import datetime
-from dotenv import load_dotenv
-import os
 
 from data_loaders import *
 from schedule_board import schedule_board
@@ -15,6 +11,9 @@ st.set_page_config(
 
 """
 # :material/grain: F1 Dashboard
+
+F1 Calendar & Data Analysis (started from the Hybrid V6 Turbo Era (2014) onwards).
+
 """
 
 schedule_board()
