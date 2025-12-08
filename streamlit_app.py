@@ -16,7 +16,7 @@ F1 Calendar & Data Analysis (started from the Hybrid V6 Turbo Era (2014) onwards
 
 """
 
-schedule_board()
+# schedule_board()
 st.markdown("---")
 cols_1 = st.columns([2, 4, 2])
 cols_1[1].markdown("""
