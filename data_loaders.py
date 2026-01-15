@@ -37,7 +37,7 @@ def query_data(query, conn):
 def get_latest_season(_conn) -> int:
     return query_data(f"""
     SELECT MAX(year) FROM formula_one.season;
-""")
+    """, _conn)['max'][0]
 
 # Loader: State - Round Number
 @st.cache_data(ttl=600)

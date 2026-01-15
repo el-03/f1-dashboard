@@ -16,7 +16,17 @@ F1 Calendar & Data Analysis (started from the Hybrid V6 Turbo Era (2014) onwards
 
 """
 
-# schedule_board()
+# Get connection
+connection = get_connection()
+
+# Load Data: Latest Season
+current_year = get_latest_season(connection)
+
+year_options = sorted(list(range(2014, current_year + 1)), reverse=True)
+
+if datetime.now().year == current_year:
+    schedule_board()
+
 st.markdown("---")
 cols_1 = st.columns([2, 4, 2])
 cols_1[1].markdown("""
@@ -48,13 +58,6 @@ col_3_1 = cols_3[0].container(border=True, height="stretch")
 col_3_2 = cols_3[1].container(border=True, height="stretch")
 
 col_3_3 = cols_3[2].container(height="stretch")
-
-# Get connection
-connection = get_connection()
-
-# Load Data: Latest Season
-current_year = get_latest_season(connection)
-year_options = sorted(list(range(2014, current_year)), reverse=True)
 
 with col_1_1:
     season_ticker = st.selectbox(
