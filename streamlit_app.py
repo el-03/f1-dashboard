@@ -52,8 +52,9 @@ col_3_3 = cols_3[2].container(height="stretch")
 # Get connection
 connection = get_connection()
 
-current_year = datetime.now().year
-year_options = sorted(list(range(2014, current_year + 1)), reverse=True)
+# Load Data: Latest Season
+current_year = get_latest_season(connection)
+year_options = sorted(list(range(2014, current_year)), reverse=True)
 
 with col_1_1:
     season_ticker = st.selectbox(

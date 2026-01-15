@@ -33,6 +33,12 @@ def query_data(query, conn):
         return pd.read_sql(query, conn)
 
 
+# Loader: State - Latest Season
+def get_latest_season(_conn) -> int:
+    return query_data(f"""
+    SELECT MAX(year) FROM formula_one.season;
+""")
+
 # Loader: State - Round Number
 @st.cache_data(ttl=600)
 def get_round_num(selected_year, _conn) -> int:
@@ -242,53 +248,56 @@ def get_nearest_round_sessions(_conn) -> pd.DataFrame:
         ORDER BY date DESC;
         """, _conn)
 
+
 def get_last_winner(_conn) -> pd.DataFrame:
     return query_data("""
-    WITH cte_1 AS (
-      SELECT id, date
-      FROM formula_one.round
-      WHERE circuit_id = (
-        SELECT circuit_id
-        FROM formula_one_views.current_season_session
-        WHERE date > NOW()
-        ORDER BY timestamp ASC
-        LIMIT 1
-      )
-      ORDER BY date DESC
-      LIMIT 1 OFFSET 1
-    ),
-    cte_2 AS(
-      SELECT driver_id, cte_1.date
-      FROM formula_one.race_result rr
-      INNER JOIN cte_1 ON rr.round_id = cte_1.id
-      WHERE rr.position = 1
-    )
-    SELECT CONCAT(d.forename, ' ', d.surname) driver, d.abbreviation, cte_2.date FROM formula_one.driver d
-    INNER JOIN cte_2 ON d.id = cte_2.driver_id;
-    """, _conn).squeeze()
+                      WITH cte_1 AS (SELECT id, date
+                      FROM formula_one.round
+                      WHERE circuit_id = (
+                          SELECT circuit_id
+                          FROM formula_one_views.current_season_session
+                          WHERE date
+                          > NOW()
+                          ORDER BY timestamp ASC
+                          LIMIT 1
+                          )
+                      ORDER BY date DESC
+                          LIMIT 1
+                      OFFSET 1 ), cte_2 AS(
+                      SELECT driver_id, cte_1.date
+                      FROM formula_one.race_result rr
+                          INNER JOIN cte_1
+                      ON rr.round_id = cte_1.id
+                      WHERE rr.position = 1
+                          )
+                      SELECT CONCAT(d.forename, ' ', d.surname) driver, d.abbreviation, cte_2.date
+                      FROM formula_one.driver d
+                               INNER JOIN cte_2 ON d.id = cte_2.driver_id;
+                      """, _conn).squeeze()
+
 
 def get_most_wins(_conn) -> pd.DataFrame:
     return query_data("""
-    WITH cte_1 AS (
-      SELECT id
-      FROM formula_one.round
-      WHERE circuit_id = (
-        SELECT circuit_id
-        FROM formula_one_views.current_season_session
-        WHERE date > NOW()
-        ORDER BY timestamp ASC
-        LIMIT 1
-      )
-    ),
-    cte_2 AS(
-      SELECT driver_id, COUNT(*) win_nums
-      FROM formula_one.race_result rr
-      INNER JOIN cte_1 ON rr.round_id = cte_1.id
-      WHERE rr.position = 1
-      GROUP BY driver_id
-      ORDER BY COUNT(*) DESC
-      LIMIT 1
-    )
-    SELECT CONCAT(d.forename, ' ', d.surname) driver, d.abbreviation, cte_2.win_nums FROM formula_one.driver d
-    INNER JOIN cte_2 ON d.id = cte_2.driver_id;
-    """, _conn).squeeze()
+                      WITH cte_1 AS (SELECT id
+                                     FROM formula_one.round
+                                     WHERE circuit_id = (SELECT circuit_id
+                                                         FROM formula_one_views.current_season_session
+                                                         WHERE date > NOW()
+                      ORDER BY timestamp ASC
+                          LIMIT 1
+                          )
+                          ),
+                          cte_2 AS (
+                      SELECT driver_id, COUNT (*) win_nums
+                      FROM formula_one.race_result rr
+                          INNER JOIN cte_1
+                      ON rr.round_id = cte_1.id
+                      WHERE rr.position = 1
+                      GROUP BY driver_id
+                      ORDER BY COUNT (*) DESC
+                          LIMIT 1
+                          )
+                      SELECT CONCAT(d.forename, ' ', d.surname) driver, d.abbreviation, cte_2.win_nums
+                      FROM formula_one.driver d
+                               INNER JOIN cte_2 ON d.id = cte_2.driver_id;
+                      """, _conn).squeeze()
