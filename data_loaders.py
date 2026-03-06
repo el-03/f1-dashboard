@@ -42,11 +42,13 @@ def get_latest_season(_conn) -> int:
 # Loader: State - Round Number
 @st.cache_data(ttl=600)
 def get_round_num(selected_year, _conn) -> int:
-    return query_data(f"""
+    max_round = query_data(f"""
     SELECT MAX(r.number) FROM formula_one.race_result rr
     LEFT JOIN formula_one.round r ON 
       rr.round_id = r.id
     WHERE EXTRACT(YEAR FROM r.date) = {selected_year};""", _conn)['max'][0]
+
+    return 0 if pd.isna(max_round) else int(max_round)
 
 
 # Loader: Drivers' Standing

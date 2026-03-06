@@ -78,6 +78,15 @@ with col_1_1:
         st.session_state.round_slider_d = st.session_state.round_slider_max
         st.session_state.round_slider_t = st.session_state.round_slider_max
 
+    st.session_state.round_slider_d = min(
+        st.session_state.get("round_slider_d", st.session_state.round_slider_max),
+        st.session_state.round_slider_max,
+    )
+    st.session_state.round_slider_t = min(
+        st.session_state.get("round_slider_t", st.session_state.round_slider_max),
+        st.session_state.round_slider_max,
+    )
+
 # Load Data: Standings
 drivers_standings_df = get_drivers_standings(season_ticker, connection)
 drivers_standings_df.rename(columns={"position": "POS.", "driver": "DRIVER", "points": "PTS."}, inplace=True)
@@ -123,48 +132,61 @@ with col_2_1:
 
     cols_1 = st.columns(2)
 
-    most_win_d = most_win_d_df.iloc[0]
     cols_1[0].markdown("""### Most Wins""")
-    cols_1[0].metric(
-        most_win_d["driver"],
-        most_win_d["abbreviation"],
-        delta=f"{most_win_d["total_win"]} Win(s)",
-        width="content"
-    )
+    if not most_win_d_df.empty:
+        most_win_d = most_win_d_df.iloc[0]
+        cols_1[0].metric(
+            most_win_d["driver"],
+            most_win_d["abbreviation"],
+            delta=f"{most_win_d["total_win"]} Win(s)",
+            width="content"
+        )
+    else:
+        cols_1[0].metric("No data yet", "-", delta="0 Win(s)", width="content")
 
-    most_poles_d = most_poles_d_df.iloc[0]
     cols_1[1].markdown("""### Most Poles""")
-    cols_1[1].metric(
-        most_poles_d["driver"],
-        most_poles_d["abbreviation"],
-        delta=f"{most_poles_d["total_pole"]} Pole(s)",
-        width="content"
-    )
-
-    most_gains_d = ovt_d_df.iloc[0]
-    most_losses_d = ovt_d_df.iloc[-1]
+    if not most_poles_d_df.empty:
+        most_poles_d = most_poles_d_df.iloc[0]
+        cols_1[1].metric(
+            most_poles_d["driver"],
+            most_poles_d["abbreviation"],
+            delta=f"{most_poles_d["total_pole"]} Pole(s)",
+            width="content"
+        )
+    else:
+        cols_1[1].metric("No data yet", "-", delta="0 Pole(s)", width="content")
 
     cols_2 = st.columns(2)
     cols_2[0].markdown("""### Places Gained""")
-    cols_2[0].metric(
-        most_gains_d["driver"],
-        most_gains_d["abbreviation"],
-        delta=f"{most_gains_d["total_overtake"]} | +{most_gains_d["avg_overtake"]} (avg.)",
-        width="content"
-    )
+    if not ovt_d_df.empty:
+        most_gains_d = ovt_d_df.iloc[0]
+        cols_2[0].metric(
+            most_gains_d["driver"],
+            most_gains_d["abbreviation"],
+            delta=f"{most_gains_d["total_overtake"]} | +{most_gains_d["avg_overtake"]} (avg.)",
+            width="content"
+        )
+    else:
+        cols_2[0].metric("No data yet", "-", delta="0 | +0.0 (avg.)", width="content")
 
     cols_2[1].markdown("""### Places Lost""")
-    cols_2[1].metric(
-        most_losses_d["driver"],
-        most_losses_d["abbreviation"],
-        delta=f"{most_losses_d["total_overtake"]} | {most_losses_d["avg_overtake"]} (avg.)",
-        width="content"
-    )
+    if not ovt_d_df.empty:
+        most_losses_d = ovt_d_df.iloc[-1]
+        cols_2[1].metric(
+            most_losses_d["driver"],
+            most_losses_d["abbreviation"],
+            delta=f"{most_losses_d["total_overtake"]} | {most_losses_d["avg_overtake"]} (avg.)",
+            width="content"
+        )
+    else:
+        cols_2[1].metric("No data yet", "-", delta="0 | 0.0 (avg.)", width="content")
 
 drivers_progression_df = get_progression_d(season_ticker, connection)
 
 with col_2_2:
-    if not drivers_progression_df.empty:
+    if st.session_state.round_slider_max == 0 or drivers_progression_df.empty:
+        st.info("Drivers' Championship progression will appear after the first race result is available.")
+    else:
         # Use st.session_state to get current slider value (default if not set)
         round_slider_d = st.session_state.get('round_slider_d', st.session_state.round_slider_max)
 
@@ -220,38 +242,48 @@ with col_3_1:
     st.markdown("---")
     cols = st.columns(2)
 
-    most_win_t = most_win_t_df.iloc[0]
     cols[0].markdown("""### Most Wins""")
-    cols[0].metric(
-        "In a season",
-        most_win_t["team"],
-        delta=f"{most_win_t["total_win"]} Win(s)",
-        width="content"
-    )
-
-    most_poles_t = most_poles_t_df.iloc[0]
+    if not most_win_t_df.empty:
+        most_win_t = most_win_t_df.iloc[0]
+        cols[0].metric(
+            "In a season",
+            most_win_t["team"],
+            delta=f"{most_win_t["total_win"]} Win(s)",
+            width="content"
+        )
+    else:
+        cols[0].metric("In a season", "No data yet", delta="0 Win(s)", width="content")
 
     cols[1].markdown("""### Most Poles""")
-    cols[1].metric(
-        "In a season",
-        most_poles_t["team"],
-        delta=f"{most_poles_t["total_pole"]} Pole(s)",
-        width="content"
-    )
+    if not most_poles_t_df.empty:
+        most_poles_t = most_poles_t_df.iloc[0]
+        cols[1].metric(
+            "In a season",
+            most_poles_t["team"],
+            delta=f"{most_poles_t["total_pole"]} Pole(s)",
+            width="content"
+        )
+    else:
+        cols[1].metric("In a season", "No data yet", delta="0 Pole(s)", width="content")
 
     st.markdown("""### Most DNFs""")
-    most_dnfs_t = most_dnfs_t_df.iloc[0]
-    st.metric(
-        "In a season",
-        most_dnfs_t["team"],
-        delta=f"{-1 * most_dnfs_t["retired_count"]} DNF(s)",
-        width="content"
-    )
+    if not most_dnfs_t_df.empty:
+        most_dnfs_t = most_dnfs_t_df.iloc[0]
+        st.metric(
+            "In a season",
+            most_dnfs_t["team"],
+            delta=f"{-1 * most_dnfs_t["retired_count"]} DNF(s)",
+            width="content"
+        )
+    else:
+        st.metric("In a season", "No data yet", delta="0 DNF(s)", width="content")
 
 teams_progression_df = get_progression_t(season_ticker, connection)
 
 with col_3_2:
-    if not teams_progression_df.empty:
+    if st.session_state.round_slider_max == 0 or teams_progression_df.empty:
+        st.info("Teams' Championship progression will appear after the first race result is available.")
+    else:
         # Use st.session_state to get current slider value (default if not set)
         round_slider_t = st.session_state.get('round_slider_t', st.session_state.round_slider_max)
 

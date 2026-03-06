@@ -1,11 +1,5 @@
 import streamlit as st
-import psycopg2
-import pandas as pd
-import altair as alt
-from datetime import datetime
-from dotenv import load_dotenv
-import os
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import pydeck as pdk
 
@@ -125,12 +119,13 @@ def schedule_board():
     with col_1_3:
         st.markdown(f"""### Session Schedule""")
         st.dataframe(nearest_round_sessions_to_show_df, hide_index=True)
-        st.markdown("""### Number of Laps""")
-        st.markdown(f"""
-                    <h1 style='text-align:center; margin: 0;'>
-                        {int(round_info_s['scheduled_laps'])}
-                    </h1>
-                    """, unsafe_allow_html=True)
+        if pd.notna(round_info_s['scheduled_laps']) and int(round_info_s['scheduled_laps']) > 0:
+            st.markdown("""### Number of Laps""")
+            st.markdown(f"""
+                        <h1 style='text-align:center; margin: 0;'>
+                            {int(round_info_s['scheduled_laps'])}
+                        </h1>
+                        """, unsafe_allow_html=True)
     with col_2:
         st.markdown(f"""### """)
         st.markdown(f"""### F1 {year_now} Calendar""")
