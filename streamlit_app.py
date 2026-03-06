@@ -227,7 +227,6 @@ with col_2_2:
             "",
             1,
             st.session_state.round_slider_max,
-            st.session_state.round_slider_max,
             key="round_slider_d"
         )
 
@@ -323,7 +322,6 @@ with col_3_2:
         st.slider(
             "",
             1,
-            st.session_state.round_slider_max,
             st.session_state.round_slider_max,
             key="round_slider_t"
         )
