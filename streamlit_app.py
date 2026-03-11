@@ -137,6 +137,9 @@ pills_t_map = {
 }
 
 with col_2_1:
+    if "drivers_filter" in st.session_state and st.session_state.drivers_filter is None:
+        st.session_state.drivers_filter = "All"
+
     selection_drivers = st.pills("Filter", pills_d_map, default={"Top 3": 3}, key="drivers_filter")
 
     st.markdown("---")
@@ -248,6 +251,9 @@ with col_2_3:
         st.dataframe(drivers_standings_df[5:])
 
 with col_3_1:
+    if "teams_filter" in st.session_state and st.session_state.teams_filter is None:
+        st.session_state.teams_filter = "All"
+
     selection_teams = st.pills("Filter", pills_t_map, default={"Top 3": 3}, key="teams_filter")
     st.markdown("---")
     cols = st.columns(2)
