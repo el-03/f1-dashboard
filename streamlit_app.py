@@ -4,6 +4,17 @@ from datetime import datetime
 from data_loaders import *
 from schedule_board import schedule_board
 
+
+def clamp_round_slider(current_value, max_round):
+    if max_round <= 0:
+        return 0
+
+    if current_value is None:
+        return max_round
+
+    return max(1, min(current_value, max_round))
+
+
 st.set_page_config(
     page_title="F1 Dashboard",
     layout="wide",
@@ -78,12 +89,12 @@ with col_1_1:
         st.session_state.round_slider_d = st.session_state.round_slider_max
         st.session_state.round_slider_t = st.session_state.round_slider_max
 
-    st.session_state.round_slider_d = min(
-        st.session_state.get("round_slider_d", st.session_state.round_slider_max),
+    st.session_state.round_slider_d = clamp_round_slider(
+        st.session_state.get("round_slider_d"),
         st.session_state.round_slider_max,
     )
-    st.session_state.round_slider_t = min(
-        st.session_state.get("round_slider_t", st.session_state.round_slider_max),
+    st.session_state.round_slider_t = clamp_round_slider(
+        st.session_state.get("round_slider_t"),
         st.session_state.round_slider_max,
     )
 
@@ -116,13 +127,13 @@ pills_d_map = {
     "Top 3": 3,
     "Top 5": 5,
     "Top 10": 10,
-    "All": 20,
+    "All": len(drivers_standings_df),
 }
 
 pills_t_map = {
     "Top 3": 3,
     "Top 5": 5,
-    "All": 20,
+    "All": len(teams_standings_df),
 }
 
 with col_2_1:
@@ -222,13 +233,13 @@ with col_2_2:
         )
         st.altair_chart(chart, use_container_width=True)
 
-        # Render the slider below the chart
-        st.slider(
-            "",
-            1,
-            st.session_state.round_slider_max,
-            key="round_slider_d"
-        )
+        if st.session_state.round_slider_max > 1:
+            st.slider(
+                "",
+                1,
+                st.session_state.round_slider_max,
+                key="round_slider_d"
+            )
 
 with col_2_3:
     st.markdown("Drivers' Standings")
@@ -318,13 +329,13 @@ with col_3_2:
 
         st.altair_chart(chart, use_container_width=True)
 
-        # Render the slider below the chart
-        st.slider(
-            "",
-            1,
-            st.session_state.round_slider_max,
-            key="round_slider_t"
-        )
+        if st.session_state.round_slider_max > 1:
+            st.slider(
+                "",
+                1,
+                st.session_state.round_slider_max,
+                key="round_slider_t"
+            )
 
 with col_3_3:
     st.markdown("Teams' Standings")
