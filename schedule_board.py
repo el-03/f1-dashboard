@@ -59,22 +59,18 @@ def schedule_board():
 
 
     nearest_round_sessions_df = get_nearest_round_sessions(connection)
-    nearest_round_sessions_df['timestamp_utc'] = nearest_round_sessions_df.apply(
-        lambda row: row['timestamp'].replace(tzinfo=ZoneInfo(row['timezone'])).astimezone(ZoneInfo('UTC')),
-        axis=1
+    nearest_round_sessions_df['timestamp_utc'] = nearest_round_sessions_df['timestamp'].apply(
+        lambda value: value.replace(tzinfo=ZoneInfo('UTC'))
     )
     round_info_s = nearest_round_sessions_df.iloc[-1]
 
     last_winner_s = get_last_winner(connection)
     most_wins_s = get_most_wins(connection)
 
-    nearest_round_sessions_to_show_df = nearest_round_sessions_df[['type', 'timestamp_utc']]
-    nearest_round_sessions_to_show_df.rename(
-        columns={
-            'type': 'SESSION',
-            'timestamp_utc': 'START TIME (UTC)'
-        }, inplace=True
-    )
+    timezone_options = {
+        'UTC': ZoneInfo('UTC'),
+        'CET': ZoneInfo('CET'),
+    }
 
     map_df = pd.DataFrame([{
         'latitude': round_info_s['latitude'],
@@ -117,7 +113,30 @@ def schedule_board():
         get_map(map_df)
 
     with col_1_3:
-        st.markdown(f"""### Session Schedule""")
+        title_col, timezone_col = st.columns([3, 2])
+        with title_col:
+            st.markdown("""### Session Schedule""")
+        with timezone_col:
+            selected_timezone_label = st.selectbox(
+                "Timezone",
+                options=list(timezone_options.keys()),
+                index=0,
+                key="session_schedule_timezone",
+                label_visibility="collapsed"
+            )
+
+        selected_timezone = timezone_options[selected_timezone_label]
+        nearest_round_sessions_to_show_df = nearest_round_sessions_df[['type', 'timestamp_utc']].copy()
+        nearest_round_sessions_to_show_df['timestamp_display'] = nearest_round_sessions_to_show_df['timestamp_utc'].apply(
+            lambda value: value.astimezone(selected_timezone).strftime("%Y-%m-%d %H:%M")
+        )
+        nearest_round_sessions_to_show_df = nearest_round_sessions_to_show_df[['type', 'timestamp_display']]
+        nearest_round_sessions_to_show_df.rename(
+            columns={
+                'type': 'SESSION',
+                'timestamp_display': f'START TIME ({selected_timezone_label})'
+            }, inplace=True
+        )
         st.dataframe(nearest_round_sessions_to_show_df, hide_index=True)
         if pd.notna(round_info_s['scheduled_laps']) and int(round_info_s['scheduled_laps']) > 0:
             st.markdown("""### Number of Laps""")
